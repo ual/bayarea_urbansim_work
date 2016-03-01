@@ -1,0 +1,18 @@
+\begin{thebibliography}{2}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Anselin(2013)]{anselin2013spatial}
+Luc Anselin.
+\newblock \emph{Spatial econometrics: methods and models}, volume~4.
+\newblock Springer Science \& Business Media, 2013.
+
+\bibitem[Greenwade(1993)]{greenwade93}
+George~D. Greenwade.
+\newblock The {C}omprehensive {T}ex {A}rchive {N}etwork ({CTAN}).
+\newblock \emph{TUGBoat}, 14\penalty0 (3):\penalty0 342--351, 1993.
+
+\end{thebibliography}

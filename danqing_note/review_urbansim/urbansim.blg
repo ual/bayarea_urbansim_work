@@ -1,0 +1,46 @@
+This is BibTeX, Version 0.99d (TeX Live 2014)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
+The top-level auxiliary file: urbansim.aux
+The style file: plainnat.bst
+Database file #1: 5.bib
+You've used 2 entries,
+            2773 wiz_defined-function locations,
+            604 strings with 5042 characters,
+and the built_in function-call counts, 727 in all, are:
+= -- 61
+> -- 20
+< -- 3
++ -- 8
+- -- 6
+* -- 49
+:= -- 118
+add.period$ -- 6
+call.type$ -- 2
+change.case$ -- 7
+chr.to.int$ -- 2
+cite$ -- 4
+duplicate$ -- 40
+empty$ -- 73
+format.name$ -- 8
+if$ -- 146
+int.to.chr$ -- 1
+int.to.str$ -- 1
+missing$ -- 3
+newline$ -- 18
+num.names$ -- 8
+pop$ -- 18
+preamble$ -- 1
+purify$ -- 6
+quote$ -- 0
+skip$ -- 27
+stack$ -- 0
+substring$ -- 29
+swap$ -- 3
+text.length$ -- 1
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 17
+warning$ -- 0
+while$ -- 8
+width$ -- 0
+write$ -- 33
