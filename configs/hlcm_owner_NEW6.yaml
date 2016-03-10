@@ -1,0 +1,181 @@
+name: hlcm_owner
+
+model_type: segmented_discretechoice
+
+segmentation_col: income_quartile
+
+choosers_fit_filters:
+- hownrent == 1
+
+choosers_predict_filters:
+- hownrent == 1
+
+alts_fit_filters: null
+
+alts_predict_filters:
+- unit_tenure == 0
+
+interaction_predict_filters: null
+
+choice_column: null
+
+sample_size: 100
+
+estimation_sample_size: 15000
+
+prediction_sample_size: null
+
+default_config:
+    model_expression: np.log1p(residential_price) + np.log1p(sqft_per_unit) + np.log1p(ave_lot_size_per_unit)
+        +ave_income + jobs + autoPeakTotal + transitPeakTotal + autoOffPeakRetail
+        - 1
+
+models:
+    1:
+        fit_parameters:
+            Coefficient:
+                autoOffPeakRetail: 0.6843464213109879
+                autoPeakTotal: -0.6869518257427931
+                ave_income: -0.4126562676732865
+                jobs: -0.028569749946740535
+                np.log1p(ave_lot_size_per_unit): 0.5594301749907694
+                np.log1p(residential_price): 0.33862793796591656
+                np.log1p(sqft_per_unit): 0.12359678940100353
+                transitPeakTotal: 0.00018757826944897532
+            Std. Error:
+                autoOffPeakRetail: 0.06548967656623127
+                autoPeakTotal: 0.064815499817396
+                ave_income: 0.04337163858700492
+                jobs: 0.0060464272171196366
+                np.log1p(ave_lot_size_per_unit): 0.14127442420324393
+                np.log1p(residential_price): 0.08744491144668252
+                np.log1p(sqft_per_unit): 0.04341621732714018
+                transitPeakTotal: 0.005072276106776307
+            T-Score:
+                autoOffPeakRetail: 10.449683937878241
+                autoPeakTotal: -10.598573299259206
+                ave_income: -9.514426503519912
+                jobs: -4.7250630696172395
+                np.log1p(ave_lot_size_per_unit): 3.959882888540018
+                np.log1p(residential_price): 3.8724716208602596
+                np.log1p(sqft_per_unit): 2.8467885276532643
+                transitPeakTotal: 0.03698108413269935
+        fitted: true
+        log_likelihoods:
+            convergence: -67911.51057076808
+            'null': -68234.80664579733
+            ratio: 0.00473799356840654
+        name: 1
+    2:
+        fit_parameters:
+            Coefficient:
+                autoOffPeakRetail: 0.8256477289486405
+                autoPeakTotal: -0.8280878907466158
+                ave_income: -0.1809921286749559
+                jobs: -0.027060994240200607
+                np.log1p(ave_lot_size_per_unit): 0.38042140304240757
+                np.log1p(residential_price): -0.020207116916576166
+                np.log1p(sqft_per_unit): -0.018240336076783846
+                transitPeakTotal: -0.0037892245416863857
+            Std. Error:
+                autoOffPeakRetail: 0.06384581378430289
+                autoPeakTotal: 0.06315079481714195
+                ave_income: 0.05126947595761639
+                jobs: 0.005965616048926719
+                np.log1p(ave_lot_size_per_unit): 0.14051519520469705
+                np.log1p(residential_price): 0.08897045116167134
+                np.log1p(sqft_per_unit): 0.04490563486088371
+                transitPeakTotal: 0.005165422024706694
+            T-Score:
+                autoOffPeakRetail: 12.931900777990146
+                autoPeakTotal: -13.112865691467682
+                ave_income: -3.5302121836505416
+                jobs: -4.536160895750101
+                np.log1p(ave_lot_size_per_unit): 2.707332843883713
+                np.log1p(residential_price): -0.22712166402143003
+                np.log1p(sqft_per_unit): -0.40619258882079834
+                transitPeakTotal: -0.7335750154705989
+        fitted: true
+        log_likelihoods:
+            convergence: -67777.27034237266
+            'null': -68257.83249672725
+            ratio: 0.007040395757917262
+        name: 2
+    3:
+        fit_parameters:
+            Coefficient:
+                autoOffPeakRetail: 0.32427522770698586
+                autoPeakTotal: -0.2589151938933274
+                ave_income: 0.7633681545360099
+                jobs: -0.03648565531275178
+                np.log1p(ave_lot_size_per_unit): 0.13120119267411967
+                np.log1p(residential_price): -1.1313902802525064
+                np.log1p(sqft_per_unit): -0.4641120742963257
+                transitPeakTotal: -0.010820357447801788
+            Std. Error:
+                autoOffPeakRetail: 0.06376517859037442
+                autoPeakTotal: 0.06268556952369675
+                ave_income: 0.05283417733621147
+                jobs: 0.005847804876636064
+                np.log1p(ave_lot_size_per_unit): 0.14587734427623034
+                np.log1p(residential_price): 0.0912810144490103
+                np.log1p(sqft_per_unit): 0.046066348387549035
+                transitPeakTotal: 0.005101900116881136
+            T-Score:
+                autoOffPeakRetail: 5.08545941335976
+                autoPeakTotal: -4.1303795412666835
+                ave_income: 14.44837779300129
+                jobs: -6.23920532275695
+                np.log1p(ave_lot_size_per_unit): 0.8993938937199172
+                np.log1p(residential_price): -12.394584866106003
+                np.log1p(sqft_per_unit): -10.074861380194994
+                transitPeakTotal: -2.1208485466031477
+        fitted: true
+        log_likelihoods:
+            convergence: -67463.16705064876
+            'null': -68193.36011412348
+            ratio: 0.010707685649346654
+        name: 3
+    4:
+        fit_parameters:
+            Coefficient:
+                autoOffPeakRetail: 0.21739055962172932
+                autoPeakTotal: -0.15926394642207697
+                ave_income: 1.7893802967094785
+                jobs: -0.012665947575407973
+                np.log1p(ave_lot_size_per_unit): 0.25667624766185587
+                np.log1p(residential_price): -0.35414412271563595
+                np.log1p(sqft_per_unit): -0.09676977694564923
+                transitPeakTotal: -0.018980878146705443
+            Std. Error:
+                autoOffPeakRetail: 0.06565816718828138
+                autoPeakTotal: 0.06321935892647511
+                ave_income: 0.0527665709944922
+                jobs: 0.005402348470448234
+                np.log1p(ave_lot_size_per_unit): 0.14391304575685473
+                np.log1p(residential_price): 0.08974252864679257
+                np.log1p(sqft_per_unit): 0.04587792765644635
+                transitPeakTotal: 0.004984890815432105
+            T-Score:
+                autoOffPeakRetail: 3.3109446841295473
+                autoPeakTotal: -2.519227482317606
+                ave_income: 33.911248409457095
+                jobs: -2.344526208313452
+                np.log1p(ave_lot_size_per_unit): 1.7835509373869958
+                np.log1p(residential_price): -3.946224026174609
+                np.log1p(sqft_per_unit): -2.1092883198714407
+                transitPeakTotal: -3.8076818228284752
+        fitted: true
+        log_likelihoods:
+            convergence: -65433.693483437026
+            'null': -68248.62215635528
+            ratio: 0.04124520882589178
+        name: 4
+
+fitted: true
+
+choice_mode: aggregate
+
+remove_alts: true
+
+probability_mode: single_chooser

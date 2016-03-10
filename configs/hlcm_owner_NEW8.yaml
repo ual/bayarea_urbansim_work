@@ -1,0 +1,194 @@
+name: hlcm_owner
+
+model_type: segmented_discretechoice
+
+segmentation_col: income_quartile
+
+choosers_fit_filters:
+- hownrent == 1
+
+choosers_predict_filters:
+- hownrent == 1
+
+alts_fit_filters: null
+
+alts_predict_filters:
+- unit_tenure == 0
+
+interaction_predict_filters: null
+
+choice_column: null
+
+sample_size: 100
+
+estimation_sample_size: 15000
+
+prediction_sample_size: null
+
+default_config:
+    model_expression: np.log1p(persons* ave_hhsize) + np.log1p(white * pct_white)
+        + np.log1p(black * pct_black) + np.log1p(hisp * pct_hisp) + np.log1p(asian
+        * pct_asian) + jobs + autoPeakTotal + transitPeakTotal + autoOffPeakRetail
+        - 1
+
+models:
+    1:
+        fit_parameters:
+            Coefficient:
+                autoOffPeakRetail: 0.23589905391102203
+                autoPeakTotal: -0.3653574873223373
+                jobs: -0.00935446685304239
+                np.log1p(asian * pct_asian): 3.0
+                np.log1p(black * pct_black): 3.0
+                np.log1p(hisp * pct_hisp): 3.0
+                np.log1p(persons * ave_hhsize): 2.475681244255457
+                np.log1p(white * pct_white): 3.0
+                transitPeakTotal: 0.011750704928067651
+            Std. Error:
+                autoOffPeakRetail: 0.052620200417366626
+                autoPeakTotal: 0.043491251602756686
+                jobs: 0.005944165863606264
+                np.log1p(asian * pct_asian): 0.010140829972132415
+                np.log1p(black * pct_black): 0.011122428581898347
+                np.log1p(hisp * pct_hisp): 0.007134148540835573
+                np.log1p(persons * ave_hhsize): 0.021214358475847708
+                np.log1p(white * pct_white): 0.008407330256224263
+                transitPeakTotal: 0.003848788865464307
+            T-Score:
+                autoOffPeakRetail: 4.483051224433698
+                autoPeakTotal: -8.400712185969354
+                jobs: -1.573722380513644
+                np.log1p(asian * pct_asian): 295.8337737881586
+                np.log1p(black * pct_black): 269.7252652970479
+                np.log1p(hisp * pct_hisp): 420.51269087377744
+                np.log1p(persons * ave_hhsize): 116.69837893396543
+                np.log1p(white * pct_white): 356.83146832241863
+                transitPeakTotal: 3.0530915929185634
+        fitted: true
+        log_likelihoods:
+            convergence: -66197.99393116498
+            'null': -68119.67739114775
+            ratio: 0.028210401657487783
+        name: 1
+    2:
+        fit_parameters:
+            Coefficient:
+                autoOffPeakRetail: 0.45528057289808255
+                autoPeakTotal: -0.5880374678954423
+                jobs: -0.01676641339046389
+                np.log1p(asian * pct_asian): 3.0
+                np.log1p(black * pct_black): 3.0
+                np.log1p(hisp * pct_hisp): 3.0
+                np.log1p(persons * ave_hhsize): 2.4350585045739686
+                np.log1p(white * pct_white): 3.0
+                transitPeakTotal: 0.004387238672001756
+            Std. Error:
+                autoOffPeakRetail: 0.05207273075979887
+                autoPeakTotal: 0.042952136999185424
+                jobs: 0.00576516391040142
+                np.log1p(asian * pct_asian): 0.009986886088586475
+                np.log1p(black * pct_black): 0.011124992471784285
+                np.log1p(hisp * pct_hisp): 0.007153118860451235
+                np.log1p(persons * ave_hhsize): 0.019771303842015586
+                np.log1p(white * pct_white): 0.008331111491131173
+                transitPeakTotal: 0.003718852163101387
+            T-Score:
+                autoOffPeakRetail: 8.743166840974812
+                autoPeakTotal: -13.69052878338962
+                jobs: -2.9082283957641146
+                np.log1p(asian * pct_asian): 300.39393394389003
+                np.log1p(black * pct_black): 269.66310382759696
+                np.log1p(hisp * pct_hisp): 419.3974766149423
+                np.log1p(persons * ave_hhsize): 123.16125046843275
+                np.log1p(white * pct_white): 360.09600918120344
+                transitPeakTotal: 1.1797292496679834
+        fitted: true
+        log_likelihoods:
+            convergence: -66043.00305160209
+            'null': -68184.14977375152
+            ratio: 0.03140241139992461
+        name: 2
+    3:
+        fit_parameters:
+            Coefficient:
+                autoOffPeakRetail: 0.3722579830016622
+                autoPeakTotal: -0.41768686984344394
+                jobs: -0.03940307001684172
+                np.log1p(asian * pct_asian): 3.0
+                np.log1p(black * pct_black): 3.0
+                np.log1p(hisp * pct_hisp): 3.0
+                np.log1p(persons * ave_hhsize): 2.8163886586847946
+                np.log1p(white * pct_white): 3.0
+                transitPeakTotal: -0.04606961301539021
+            Std. Error:
+                autoOffPeakRetail: 0.05165575218788067
+                autoPeakTotal: 0.0425772348580435
+                jobs: 0.005513915568707233
+                np.log1p(asian * pct_asian): 0.00968331290566716
+                np.log1p(black * pct_black): 0.011560187270624734
+                np.log1p(hisp * pct_hisp): 0.007307187017665664
+                np.log1p(persons * ave_hhsize): 0.02003311602194077
+                np.log1p(white * pct_white): 0.008250462619329562
+                transitPeakTotal: 0.0037146945886543897
+            T-Score:
+                autoOffPeakRetail: 7.206515581221182
+                autoPeakTotal: -9.810098547640568
+                jobs: -7.146114140822795
+                np.log1p(asian * pct_asian): 309.8113248250244
+                np.log1p(black * pct_black): 259.51136688098603
+                np.log1p(hisp * pct_hisp): 410.5547035743411
+                np.log1p(persons * ave_hhsize): 140.58664940592445
+                np.log1p(white * pct_white): 363.6159738450863
+                transitPeakTotal: -12.401992119647838
+        fitted: true
+        log_likelihoods:
+            convergence: -65944.51469611586
+            'null': -68285.46351784315
+            ratio: 0.03428180319982144
+        name: 3
+    4:
+        fit_parameters:
+            Coefficient:
+                autoOffPeakRetail: -0.32584511320193943
+                autoPeakTotal: 0.6060457558228548
+                jobs: -0.08690143692056206
+                np.log1p(asian * pct_asian): 3.0
+                np.log1p(black * pct_black): 3.0
+                np.log1p(hisp * pct_hisp): 2.239336317808217
+                np.log1p(persons * ave_hhsize): 1.0608512777976125
+                np.log1p(white * pct_white): 3.0
+                transitPeakTotal: -0.15173256340439592
+            Std. Error:
+                autoOffPeakRetail: 0.05714230280765395
+                autoPeakTotal: 0.046931237704965365
+                jobs: 0.00517353634226018
+                np.log1p(asian * pct_asian): 0.011187707839637876
+                np.log1p(black * pct_black): 0.01422905415008884
+                np.log1p(hisp * pct_hisp): 0.008686577066313211
+                np.log1p(persons * ave_hhsize): 0.021341911822692322
+                np.log1p(white * pct_white): 0.010037410755601514
+                transitPeakTotal: 0.003632637725382462
+            T-Score:
+                autoOffPeakRetail: -5.702344798717037
+                autoPeakTotal: 12.913483331353408
+                jobs: -16.797299017831417
+                np.log1p(asian * pct_asian): 268.15144290513615
+                np.log1p(black * pct_black): 210.83622061985542
+                np.log1p(hisp * pct_hisp): 257.7927186638827
+                np.log1p(persons * ave_hhsize): 49.70741546545215
+                np.log1p(white * pct_white): 298.8818603767719
+                transitPeakTotal: -41.76925277854971
+        fitted: true
+        log_likelihoods:
+            convergence: -65653.64366639235
+            'null': -68248.62215635528
+            ratio: 0.03802243046047027
+        name: 4
+
+fitted: true
+
+choice_mode: aggregate
+
+remove_alts: true
+
+probability_mode: single_chooser
