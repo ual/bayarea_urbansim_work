@@ -8,9 +8,135 @@ from urbansim_defaults import variables
 
 
 #####################
-# COSTAR VARIABLES
+# NODE VARIABLES
 #####################
 
+@orca.column('nodes', 'poverty_rate', cache=True)
+def poverty_rate(nodes):
+    return nodes.poor.divide(nodes.population).fillna(0)
+
+@orca.column('nodes', 'pct_black', cache=True)
+def pct_black(nodes):
+    return nodes.blacks.divide(nodes.population).fillna(0)*100
+
+@orca.column('nodes', 'pct_hisp', cache=True)
+def pct_hisp(nodes):
+    return nodes.hispanics.divide(nodes.population).fillna(0)*100
+
+@orca.column('nodes', 'pct_asian', cache=True)
+def pct_asian(nodes):
+    return nodes.asians.divide(nodes.population).fillna(0)*100
+
+@orca.column('nodes', 'pct_white', cache=True)
+def pct_white(nodes):
+    return nodes.whites.divide(nodes.population).fillna(0)*100
+
+@orca.column('nodes', 'pct_nonwhite', cache=True)
+def pct_nonwhite(nodes):
+    return nodes.nonwhites.divide(nodes.population).fillna(0)*100
+
+@orca.column('nodes', 'pct_renters', cache=True)
+def pct_renters(nodes):
+    return nodes.renters.divide(nodes.population).fillna(0)*100
+
+@orca.column('nodes', 'pct_singles', cache=True)
+def pct_singles(nodes):
+    return nodes.singles.divide(nodes.population).fillna(0)*100
+
+@orca.column('nodes', 'pct_two_persons', cache=True)
+def pct_two_persons(nodes):
+    return nodes.two_persons.divide(nodes.population).fillna(0)*100
+
+@orca.column('nodes', 'pct_three_plus', cache=True)
+def pct_three_plus(nodes):
+    return nodes.three_plus.divide(nodes.population).fillna(0)*100
+
+
+#####################
+# REDSIDENTIAL UNIT VARIABLES
+#####################
+
+@orca.column('residential_units', 'unit_annual_rent')
+def unit_annual_rent(buildings, residential_units):
+    sqft = misc.reindex(buildings.sqft_per_unit, residential_units.index)
+    return residential_units.unit_residential_rent.multiply(sqft).multiply(12).fillna(0)
+
+
+#####################
+# HOUSEHOLD VARIABLES
+#####################
+
+# overriding to remove NaNs so we can use zone_id in regressions
+@orca.column('households', 'zone')
+def zone(households):
+    return households.zone_id.fillna(-1)
+
+@orca.column('households', 'positive_income')
+def positive_income(households):
+    inc = households.income
+    inc[inc < 1] = 1
+    return inc.fillna(1)
+
+@orca.column('households', 'hhs1')
+def hhs1(households):
+    hhs1 = households.persons == 1
+    return hhs1.fillna(1)
+
+@orca.column('households', 'hhs2')
+def hhs2(households):
+    hhs2 = households.persons == 2
+    return hhs2.fillna(1)
+
+@orca.column('households', 'hhs3p')
+def hhs3p(households):
+    hhs3p = households.persons > 2
+    return hhs3p.fillna(1)
+
+@orca.column('households', 'hhsize_cat')
+def hhsize_cat(households):
+    hhs = households.persons
+    hhs[hhs > 3] = 3
+    return hhs.fillna(1)
+
+@orca.column('households', 'hhsize_incq')
+def hhsize_incq(households):
+    hhsq = households.hhsize_cat*10+households.income_quartile
+    return hhsq.fillna(1)
+
+@orca.column('households', 'hh_monthly_rent')
+def hh_monthly_rent(households, buildings, residential_units):
+    rent = misc.reindex(residential_units.unit_residential_rent, households.unit_id)
+    sqft = misc.reindex(buildings.sqft_per_unit, households.unit_id)
+    return rent.multiply(sqft).fillna(0)
+
+@orca.column('households', 'rent_burden')
+def rent_burden(households):
+    rb = households.hh_monthly_rent.multiply(12).divide(households.positive_income)
+    return rb.replace([np.inf, -np.inf], np.nan).fillna(0)
+
+
+#####################
+# BUILDING VARIABLES
+#####################
+
+# now that price is on units, override default and aggregate UP to buildings
+@orca.column('buildings', 'residential_price')
+def residential_price(buildings, residential_units):
+    return residential_units.unit_residential_price.\
+        groupby(residential_units.building_id).median().\
+        reindex(buildings.index).fillna(0)
+
+
+@orca.column('buildings', 'residential_rent')
+def residential_rent(buildings, residential_units):
+    return residential_units.unit_residential_rent.\
+        groupby(residential_units.building_id).median().\
+        reindex(buildings.index).fillna(0)
+
+
+#####################
+# COSTAR VARIABLES
+#####################
 
 @orca.column('costar', 'general_type')
 def general_type(costar):
@@ -41,7 +167,6 @@ def node_id(parcels, costar):
 # JOBS VARIABLES
 #####################
 
-
 @orca.column('jobs', 'naics', cache=True)
 def naics(jobs):
     return jobs.sector_id
@@ -65,6 +190,9 @@ def empsix_id(jobs, settings):
 def unit_sqft(buildings):
     return (buildings.building_sqft / buildings.residential_units.replace(0, 1)).clip(400, 6000)
 
+#@orca.column('buildings', 'sqft_per_unit', cache=True)
+#def annual_rent_per_unit(buildings):
+#    return (unit_sqft * residential_rent * 12)
 
 #####################
 # PARCELS VARIABLES
@@ -73,24 +201,9 @@ def unit_sqft(buildings):
 # these are actually functions that take parameters, but are parcel-related
 # so are defined here
 @orca.injectable('parcel_average_price', autocall=False)
-def parcel_average_price(use, quantile=.5):
-    # I'm testing out a zone aggregation rather than a network aggregation
-    # because I want to be able to determine the quantile of the distribution
-    # I also want more spreading in the development and not keep it so localized
-    if use == "residential":
-        buildings = orca.get_table('buildings')
-        s = misc.reindex(buildings.
-                            residential_price[buildings.general_type ==
-                                              "Residential"].
-                            groupby(buildings.zone_id).quantile(.8),
-                            orca.get_table('parcels').zone_id).clip(150, 1250)
-        cost_shifters = orca.get_table("parcels").cost_shifters
-        price_shifters = orca.get_table("parcels").price_shifters
-        return s / cost_shifters * price_shifters
-
-    if 'nodes' not in orca.list_tables():
-        return pd.Series(0, orca.get_table('parcels').index)
-
+def parcel_average_price(use):
+    # Fletcher had some code here to switch network aggregation with zone + quantile
+    # aggregation, but I'm rolling it back for simplicity  -Sam
     return misc.reindex(orca.get_table('nodes')[use],
                         orca.get_table('parcels').node_id)
 
@@ -98,7 +211,12 @@ def parcel_average_price(use, quantile=.5):
 @orca.injectable('parcel_sales_price_sqft_func', autocall=False)
 def parcel_sales_price_sqft(use):
     s = parcel_average_price(use)
-    if use == "residential": s *= 1.0
+    # This concept of an arbitrary list of residential uses -- rather than assuming
+    # there's a use called 'residential' -- should be implemented throughout
+    residential_uses = ['residential_ownerocc', 'residential_rented']
+    #residential_uses = ['residential']
+    if use in residential_uses: 
+        s *= 1.2
     return s
 
 
@@ -171,15 +289,17 @@ def residential_purchase_price_sqft(parcels):
     return parcels.building_purchase_price_sqft
 
 
+# don't know where this is used, but fixed the type code  -Sam 
 @orca.column('parcels', 'residential_sales_price_sqft')
 def residential_sales_price_sqft(parcel_sales_price_sqft_func):
-    return parcel_sales_price_sqft_func("residential")
+    return parcel_sales_price_sqft_func("residential_ownerocc")
 
 
+# don't know where this is used, but fixed the type code  -Sam
 # for debugging reasons this is split out into its own function
 @orca.column('parcels', 'building_purchase_price_sqft')
 def building_purchase_price_sqft():
-    return parcel_average_price("residential")
+    return parcel_average_price("residential_ownerocc")
 
 
 @orca.column('parcels', 'building_purchase_price')

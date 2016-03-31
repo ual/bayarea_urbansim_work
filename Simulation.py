@@ -36,22 +36,29 @@ if SLACK:
 
 try:
   orca.run([ 
-    "neighborhood_vars",            # accessibility variables
+    "neighborhood_vars",         # accessibility variables
     
-    "rsh_simulate",                 # residential sales hedonic
-    "nrh_simulate",                 # non-residential rent hedonic
+    "rsh_simulate",              # residential sales hedonic
+    "rrh_simulate",              # residential rental hedonic
+    "nrh_simulate",              # non-residential rent hedonic
 
-    "households_relocation",
+    #"households_relocation",
+    "households_relocation_filtered",
     "households_transition",
-    "hlcm_simulate",
+    
+    "hlcm_owner_simulate",       # location choice model for owners
+    "hlcm_renter_simulate",      # location choice model for renters
+    #"hlcm_simulate",
+    #"hlcm_li_simulate",
 
     "jobs_relocation",
     "jobs_transition",
     "elcm_simulate",
 
-    "price_vars",
+    "price_vars",				# node-level variables for feasibility
+    "price_to_rent_precompute",	# translate rental/ownership income into consistent terms
 
-    "feasibility",
+    "feasibility",				# calculate feasibility of all new building types
     
     "scheduled_development_events", # scheduled buildings additions
     "residential_developer",
@@ -59,7 +66,7 @@ try:
      
     "diagnostic_output",
     "travel_model_output"
-  ], iter_vars=range(in_year, out_year))
+], iter_vars=range(in_year, out_year))
 
 except Exception as e:
     print traceback.print_exc()
