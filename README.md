@@ -1,4 +1,4 @@
-Bay Area Urbansim Implementation
+bayarea_urbansim_work
 =======
 
-This branch is created by Danqing for uploading on-going ipython notebooks
+This repository is a sandbox for the UAL research fork of Bay Area UrbanSim. It contains notebooks, work history, code samples, wiki etc. 
