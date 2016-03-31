@@ -225,10 +225,175 @@ def buildings(store, households, jobs, building_sqft_per_job, settings):
     return df
 
 
+def households_building_id(residential_units, households):
+    df = misc.reindex(residential_units.building_id, households.unit_id)
+    return df.fillna(-1)
+
+
+@orca.table('residential_units', cache=True)
+def residential_units(buildings, households):
+    # in lieu of having a real units table in the base year, we're going to
+    # build one from the buildings table.
+    df = pd.DataFrame({
+        "unit_residential_price": 0,
+        "unit_residential_rent": 0,
+        # this is going to set all the units as degenerate "buildings" with one
+        # unit each - in other words, every unit has one unit in it - duh
+        "num_units": 1,
+        # someone want to make this smarter? - right now no deed restriction
+        # in the base year
+        "deed_restricted": 0,
+        # counter of the units in a building
+        "unit_num": np.concatenate([np.arange(i) for i in \
+                                    buildings.residential_units.values]),
+        "building_id": np.repeat(buildings.index.values,
+                                 buildings.residential_units.values)
+    }).sort(columns=["building_id", "unit_num"]).reset_index(drop=True)
+    # set a few units as randomly deed restricted (for testing)
+    df.loc[np.random.choice(df.index, .03*len(df), replace=False),
+           "deed_restricted"] = 1
+    df.index.name = 'unit_id'
+
+    # This is terribly, terrribly ugly - I don't want to explain every line,
+    # but this converts from building_ids to unit_ids on the households
+    # data frame.  I did this a somewhat prettier way with a for loop and it
+    # was way too slow so I'm sticking with this for now.
+    unit_lookup = df.reset_index().set_index(["building_id", "unit_num"])
+    households = households.to_frame(households.local_columns)
+    households = households.sort(columns=["building_id"], ascending=True)
+    building_counts = households.building_id.value_counts().sort_index()
+    households["unit_num"] = np.concatenate([np.arange(i) for i in \
+                                             building_counts.values])
+    unplaced = households[households.building_id == -1].index
+    placed = households[households.building_id != -1].index
+    indexes = [tuple(t) for t in \
+               households.loc[placed, ["building_id", "unit_num"]].values]
+    households.loc[placed, "unit_id"] = unit_lookup.loc[indexes].unit_id.values
+    households.loc[unplaced, "unit_id"] = -1
+    # this will only happen if there are overfull buildings at this point
+    # actually there's this weird boundary case happening here - building_ids
+    # that don't exist are filtered from households, then buildings with
+    # invalid data are dropped (and some households are assigned to those
+    # buildings) - this line protects against that and we can move on
+    households["unit_id"] = households.unit_id.fillna(-1)
+    households.drop(["unit_num", "building_id"], axis=1, inplace=True)
+    orca.add_table("households", households)
+
+    # now that building_id is dropped from households, we can add the
+    # function to compute it from the relationship between households
+    # and residential_units
+    orca.add_column("households", "building_id", households_building_id)
+    
+    # ASSIGN INITIAL UNIT TENURE BASED ON HOUSEHOLDS TABLE
+    # 0= owner occupied, 1= rented
+    # cf households -> hownrent, where 1= owns, 2= rents
+    df["unit_tenure"] = np.nan
+    ownership_mask = (households.hownrent == 1) & (households.unit_id != -1)
+    rental_mask = (households.hownrent == 2) & (households.unit_id != -1)
+    
+    df.loc[households[ownership_mask].unit_id.values, "unit_tenure"] = 0
+    df.loc[households[rental_mask].unit_id.values, "unit_tenure"] = 1
+    
+    print "Initial unit tenure assignment: %d%% owner occupied, %d%% unfilled" % \
+    		(round(len(df[df.unit_tenure == 0])*100/len(df[df.unit_tenure.notnull()])), \
+    		 round(len(df[df.unit_tenure.isnull()])*100/len(df)))
+
+	# fill remaining units with random tenure assignment
+    unfilled = df[df.unit_tenure.isnull()].index
+    df.loc[unfilled, "unit_tenure"] = np.random.randint(0, 2, len(unfilled))
+    
+    return df
+
+
+@orca.column('residential_units', 'vacant_units')
+def vacant_units(residential_units, households):
+    return residential_units.num_units.sub(
+        households.unit_id[households.unit_id != -1].value_counts(),
+        fill_value=0)
+
+
+@orca.column('residential_units', 'node_id')
+def node_id(residential_units, buildings):
+    return misc.reindex(buildings.node_id, residential_units.building_id)
+
+
+@orca.column('residential_units', 'zone_id')
+def zone_id(residential_units, buildings):
+    return misc.reindex(buildings.zone_id, residential_units.building_id)
+
+
+@orca.column('residential_units', 'submarket_id')
+def submarket_id(residential_units, buildings):
+    return misc.reindex(buildings.zone_id, residential_units.building_id)
+
+
+# setting up a separate aggregations list for unit-based models
+@orca.injectable("unit_aggregations")
+def unit_aggregations(settings):
+    if "unit_aggregation_tables" not in settings or \
+    	settings["unit_aggregation_tables"] is None:
+    	return []
+    return [orca.get_table(tbl) for tbl in settings["unit_aggregation_tables"]]
+
+
+@orca.table('craigslist', cache=True)
+def craigslist():
+	df = pd.read_csv(os.path.join(misc.data_dir(), "sfbay_craigslist.csv"))
+	net = orca.get_injectable('net')
+	df['node_id'] = net.get_node_ids(df['longitude'], df['latitude'])
+	# fill nans -- missing bedrooms are mostly studio apts
+	df['bedrooms'] = df.bedrooms.replace(np.nan, 1)
+	df['neighborhood'] = df.neighborhood.replace(np.nan, '')
+	return df
+
+
+@orca.column('craigslist', 'zone_id', cache=True)
+def zone_id(craigslist, parcels):
+    return misc.reindex(parcels.zone_id, craigslist.node_id)
+
+
+#######################
+# EXTRA PUMS VARIABLES
+#######################
+
+@orca.table('household_extras', cache=True)
+def household_extras():
+	df = pd.read_csv(os.path.join(misc.data_dir(), "household_extras.csv"))
+	df = df.set_index('serialno')
+	return df
+
+
+@orca.column('households', 'white')
+def white(households, household_extras):
+    return misc.reindex(household_extras.white, households.serialno).fillna(0)
+
+
+@orca.column('households', 'black')
+def black(households, household_extras):
+    return misc.reindex(household_extras.black, households.serialno).fillna(0)
+
+
+@orca.column('households', 'asian')
+def asian(households, household_extras):
+    return misc.reindex(household_extras.asian, households.serialno).fillna(0)
+
+
+@orca.column('households', 'hisp')
+def hisp(households, household_extras):
+    return misc.reindex(household_extras.hisp, households.serialno).fillna(0)
+
+
 # this specifies the relationships between tables
-orca.broadcast('parcels_geography', 'buildings', cast_index=True,
-              onto_on='parcel_id')
+orca.broadcast('parcels_geography', 'buildings', cast_index=True, onto_on='parcel_id')
+
 orca.broadcast('nodes', 'homesales', cast_index=True, onto_on='node_id')
 orca.broadcast('nodes', 'costar', cast_index=True, onto_on='node_id')
+orca.broadcast('nodes', 'craigslist', cast_index=True, onto_on='node_id')
+
 orca.broadcast('logsums', 'homesales', cast_index=True, onto_on='zone_id')
 orca.broadcast('logsums', 'costar', cast_index=True, onto_on='zone_id')
+orca.broadcast('logsums', 'craigslist', cast_index=True, onto_on='zone_id')
+
+orca.broadcast('buildings', 'residential_units', cast_index=True, onto_on='building_id')
+
+orca.broadcast('households', 'household_extras', cast_index=True, onto_on='serialno')
